@@ -1,0 +1,12 @@
+# Virtual environment & Python cache
+.venv/
+__pycache__/
+*.pyc
+
+# IDE / PyCharm files
+.idea/
+
+# Vivado simulation outputs (if applicable)
+*.jou
+*.log
+Config.py
