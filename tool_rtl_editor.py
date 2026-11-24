@@ -9,12 +9,15 @@ import shutil
 import tempfile
 import time
 
+from langchain_core.tools import tool
+
 from safety import SecurityError, ToolResult, validate_rtl_path
 
 MAX_READ_LINES = 400
 MAX_EDIT_CHARS = 20000
 
 
+@tool
 def read_rtl(path: str, start_line: int = 1, end_line: int = None) -> str:
     """Read numbered lines of an RTL file inside the allowed project."""
     action = "read_rtl"
@@ -51,6 +54,7 @@ def read_rtl(path: str, start_line: int = 1, end_line: int = None) -> str:
         return ToolResult(ok=False, action=action, status="error", error=str(exc)).to_json()
 
 
+@tool
 def edit_rtl(path: str, old: str, new: str) -> str:
     """Replace exactly one occurrence of `old` with `new`, keeping a backup."""
     action = "edit_rtl"

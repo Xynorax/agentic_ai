@@ -8,6 +8,8 @@ Returns a JSON ToolResult string.
 import os
 import tempfile
 
+from langchain_core.tools import tool
+
 from safety import (
     SecurityError,
     ToolResult,
@@ -17,6 +19,7 @@ from safety import (
 )
 
 
+@tool
 def write_rtl(path: str, content: str) -> str:
     """Write `content` to a new RTL file at `path` inside the allowed project."""
     action = "write_rtl"

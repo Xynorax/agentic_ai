@@ -1,4 +1,7 @@
 # Define the actual local Python tool
+from langchain_core.tools import tool
+
+@tool
 def get_weather(location: str) -> str:
     """Mock function simulating a weather app"""
     weather_data = {

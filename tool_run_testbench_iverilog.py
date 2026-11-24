@@ -5,6 +5,8 @@ import re
 import subprocess
 import tempfile
 
+from langchain_core.tools import tool
+
 from safety import (
     ALLOWED_PROJECT_ROOTS,
     SecurityError,
@@ -33,8 +35,11 @@ def _tail(text):
     return "".join((text or "").splitlines(keepends=True)[-40:])[-_MAX_TAIL:]
 
 
+@tool
 def run_testbench_iverilog(files, top_module=None, timeout=300):
-    """Compile (iverilog) then run (vvp) the testbench and RTL files in `files`."""
+    """Compile (iverilog) then run (vvp) the testbench and RTL files in `files`.
+    Does not support UVM testbenches. Do not use the tool for UVM testbenches.
+    """
     action = ACTION
     try:
         if not isinstance(files, (list, tuple)) or not files:

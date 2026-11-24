@@ -7,6 +7,8 @@ import numpy as np
 from openai import OpenAI
 from pypdf import PdfReader
 
+from langchain_core.tools import tool
+
 from safety import ALLOWED_KNOWLEDGE_ROOTS, SecurityError, validate_path
 from Config import config
 
@@ -164,6 +166,7 @@ def retrieve_relevant_chunks(
 # ---------------------------------------------------------------------------
 # 6. Agent-facing tool: one call = search a PDF book
 # ---------------------------------------------------------------------------
+@tool
 def query_pdf(query: str, pdf_name: str, top_k: int = 3) -> str:
     """
     Search a PDF book for passages relevant to the query.

@@ -2,6 +2,8 @@ import os
 import subprocess
 import tempfile
 
+from langchain_core.tools import tool
+
 from safety import (
     SecurityError,
     ToolResult,
@@ -15,6 +17,7 @@ VIVADO_PATH = r"D:\Xilinx\Vivado\2024.1\bin\vivado.bat"
 SIM_TIMEOUT_SEC = 300
 
 
+@tool
 def run_vivado_simulation(project_path: str, simset: str = "sim_1") -> str:
     """Open a Vivado project in batch mode and run behavioral simulation.
 

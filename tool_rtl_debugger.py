@@ -21,6 +21,8 @@ import os
 import re
 from typing import Any, Optional
 
+from langchain_core.tools import tool
+
 from safety import (
     ALLOWED_KNOWLEDGE_ROOTS,
     ALLOWED_PROJECT_ROOTS,
@@ -265,6 +267,7 @@ def _unused_signals(src: str):
     return sorted(n for n, c in counts.items() if c <= 1)
 
 
+@tool
 def rtl_debugger(
     testbench_path: str,
     module_name: str,
@@ -384,6 +387,7 @@ def rtl_debugger(
         ).to_json()
 
 
+@tool
 def find_rtl_files(pattern: str, project_root: str = None, limit: int = 100) -> str:
     """Glob-search for RTL files under the project root (READ).
 

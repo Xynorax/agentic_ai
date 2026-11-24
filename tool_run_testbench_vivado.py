@@ -1,9 +1,11 @@
-"""Run a Verilog/SystemVerilog testbench with Vivado (batch mode)."""
+"""Run a Verilog/SystemVerilog testbench with Vivado (batch mode). Supports UVM testbenches"""
 
 import os
 import re
 import subprocess
 import tempfile
+
+from langchain_core.tools import tool
 
 from safety import (
     ALLOWED_PROJECT_ROOTS,
@@ -59,8 +61,10 @@ def _build_tcl(safe_files, top_module, proj_dir):
     ]) + "\n"
 
 
+@tool
 def run_testbench_vivado(files, top_module=None, timeout=300):
     """Compile/run the testbench and RTL files using Vivado in batch mode.
+    Supports UVM testbenches
 
     Generates a minimal TCL script (new temp project, add sources, set the
     top module, launch the behavioral simulation) and runs it with

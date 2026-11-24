@@ -9,6 +9,8 @@ import fnmatch
 import os
 import re
 
+from langchain_core.tools import tool
+
 from safety import (
     ALLOWED_KNOWLEDGE_ROOTS,
     ALLOWED_PROJECT_ROOTS,
@@ -23,6 +25,7 @@ MAX_RESULTS = 200
 MAX_LINE_CHARS = 200
 
 
+@tool
 def search_files(folder: str, pattern: str, mode: str = "files") -> str:
     """Search for files in a folder: name matches (mode="files") or content greps (mode="content")."""
     action = "search_files"
