@@ -19,6 +19,7 @@ from safety import READ, ToolResult, risk_of
 from Config import config
 import time
 from user_message import USER_MESSAGE
+from retrieval import index_messages, retrieve_context
 # --- Same setup as main.py -------------------------------------------------
 model = ChatOpenAI(
     model=config["MODEL_NAME"],
@@ -31,8 +32,8 @@ model = ChatOpenAI(
 
 
 SYSTEM_PROMPT = ("You are an SoC debug assistant. Use tools when needed. If a simulation "
-                 "fails, read its errors, and call the debugger. "
-                 "Try a corrected action. Stop when the simulation passes and user's requirements are fulfilled.")
+                 "fails, read its errors, reiterate. "
+                 "Try a corrected action. Stop when the simulation passes and user's requirements and goals are fulfilled.")
 
 MAX_STEPS = 1000
 os.environ["AGENT_AUTO_APPROVE"] = "yes"
@@ -112,6 +113,24 @@ def tools_node(state: State):
     return {"messages": out}
 
 
+def index_node(state: State):
+    """Embed and index new messages (human + tool outputs) into the store."""
+    index_messages(state["messages"])
+    return {"messages": []}
+
+
+def retrieve_node(state: State):
+    """Retrieve relevant chunks and append them near the end of the context."""
+    messages = state["messages"]
+    query = messages[-1].content if messages else ""
+    hits = retrieve_context(query)
+    if not hits:
+        return {"messages": []}
+    block = "\n\n".join(f"[{i}] {h}" for i, h in enumerate(hits, 1))
+    return {"messages": [HumanMessage(
+        content=f"Retrieved context from earlier in the conversation:\n{block}")]}
+
+
 def route_from_agent(state: State):
     last = state["messages"][-1]
     if isinstance(last, AIMessage) and last.tool_calls:
@@ -124,9 +143,13 @@ def route_from_agent(state: State):
 builder = StateGraph(State)
 builder.add_node("agent", agent_node)
 builder.add_node("tools", tools_node)
-builder.add_edge(START, "agent")
+builder.add_node("index", index_node)
+builder.add_node("retrieve", retrieve_node)
+builder.add_edge(START, "index")
+builder.add_edge("index", "retrieve")
+builder.add_edge("retrieve", "agent")
 builder.add_conditional_edges("agent", route_from_agent, {"tools": "tools", END: END})
-builder.add_edge("tools", "agent")
+builder.add_edge("tools", "index")
 graph = builder.compile()
 
 
